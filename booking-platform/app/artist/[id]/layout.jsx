@@ -4,7 +4,7 @@ export async function generateMetadata({ params }) {
   const decodedId = decodeURIComponent(params.id);
   const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(decodedId);
   
-  let query = supabase.from('artists').select('name, alias, bio, artist_images(image_url)').eq('is_live', true);
+  let query = supabase.from('artists').select('id, name, alias, bio, artist_images(image_url)').eq('is_live', true);
   if (isUUID) {
     query = query.eq('id', decodedId);
   } else {
@@ -16,10 +16,14 @@ export async function generateMetadata({ params }) {
   const name = data?.alias || data?.name || 'Live Artist';
   const description = data?.bio ? data.bio.substring(0, 160) : `Book ${name} for your next event. Hire premium live entertainment and musicians for weddings, corporate events, and private parties via Magnevents.`;
   const image = data?.artist_images?.[0]?.image_url || '/icon-512.png';
+  const canonicalUrl = `/artist/${data?.id || decodedId}`;
 
   return {
     title: `${name} | Book Live Singer | Magnevents`,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${name} | Book Live Singer | Magnevents`,
       description,
